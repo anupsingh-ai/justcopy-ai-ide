@@ -44,8 +44,8 @@ echo -e "${GREEN}📁 Creating data directories...${NC}"
 mkdir -p data/projects data/vector_db data/embeddings
 
 # Build the Docker image
-echo -e "${GREEN}🔨 Building Docker image...${NC}"
-docker build -t kimi-k2-ide . || {
+echo -e "${GREEN}Building JustCopy AI IDE Docker image...${NC}"
+docker build -t local-coding-agent . || {
     echo -e "${RED}❌ Docker build failed${NC}"
     exit 1
 }

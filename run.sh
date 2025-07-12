@@ -36,7 +36,7 @@ echo -e "${GREEN}🚀 Starting container...${NC}"
 if command -v nvidia-smi &> /dev/null && nvidia-smi &> /dev/null; then
     echo -e "${GREEN}🎮 GPU detected - running with GPU acceleration${NC}"
     docker run -d \
-        --name kimi-k2-ide \
+        --name local-coding-agent \
         --runtime nvidia \
         --gpus all \
         -v ~/.cache/huggingface:/root/.cache/huggingface \
@@ -47,11 +47,11 @@ if command -v nvidia-smi &> /dev/null && nvidia-smi &> /dev/null; then
         -p 8888:8888 \
         --ipc=host \
         --shm-size=2g \
-        kimi-k2-ide
+        local-coding-agent
 else
     echo -e "${YELLOW}⚠️  No GPU detected - running in CPU mode${NC}"
     docker run -d \
-        --name kimi-k2-ide \
+        --name local-coding-agent \
         -v ~/.cache/huggingface:/root/.cache/huggingface \
         -v $(pwd)/data:/app/data \
         --env-file .env \
@@ -59,7 +59,7 @@ else
         -p 8080:8080 \
         -p 8888:8888 \
         --shm-size=2g \
-        kimi-k2-ide
+        local-coding-agent
 fi
 
 # Wait for container to start

@@ -26,7 +26,11 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Initialize FastAPI app
-app = FastAPI(title="Kimi K2 IDE", description="AI-Powered Development Environment")
+app = FastAPI(
+    title="JustCopy AI IDE",
+    description="Lightning-fast local AI IDE with unlimited tokens - completely free!",
+    version="1.0.0"
+)
 
 # Add CORS middleware
 app.add_middleware(

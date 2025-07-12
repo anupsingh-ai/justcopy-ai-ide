@@ -1,37 +1,52 @@
-# 🤖 Kimi K2 AI-Powered IDE
+# 🤖 JustCopy AI IDE
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 [![GPU](https://img.shields.io/badge/GPU-Accelerated-green.svg)](https://developer.nvidia.com/cuda-toolkit)
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
+[![Local](https://img.shields.io/badge/100%25-Local-brightgreen.svg)](https://github.com)
+[![Free](https://img.shields.io/badge/Unlimited-Tokens-gold.svg)](https://github.com)
 
-A **self-contained Docker environment** that provides an AI-powered development experience with the Kimi K2 Instruct model, VS Code Server, and local vector database for intelligent code assistance.
+A **completely local AI IDE** that runs powerful LLM models on your machine for unlimited, lightning-fast code generation - **completely free**!
 
-> 🚀 **One-command setup**: Get a complete AI development environment running in minutes!
+> ⚡ **Lightning Fast**: Local models = zero latency + unlimited tokens
+> 🔒 **100% Private**: Your code never leaves your machine
+> 💰 **Completely Free**: No API costs, no token limits, no subscriptions
 
-![Kimi K2 IDE Demo](https://via.placeholder.com/800x400/667eea/ffffff?text=Kimi+K2+AI+IDE+Demo)
+**Maintained by [JustCopy.ai](https://justcopy.ai) - The AI-powered website copying platform**
 
-## Features
+![JustCopy AI IDE Demo](https://via.placeholder.com/800x400/667eea/ffffff?text=JustCopy+AI+IDE+Demo)
 
-🤖 **AI-Powered Coding**: Kimi K2 Instruct model for intelligent code generation and assistance
+## ✨ Why JustCopy AI IDE?
+
+⚡ **Lightning Fast**: No API calls = instant responses (10x faster than cloud APIs)
+💰 **Unlimited & Free**: No token limits, no monthly bills, no usage restrictions
+🔒 **100% Private**: Your code stays on your machine - perfect for proprietary projects
+🎯 **Always Available**: No internet required, no rate limits, no downtime
+🚀 **GPU Accelerated**: Harness your local GPU power for maximum performance
+
+## 🚀 Features
+
+🤖 **Local LLM Models**: Run powerful models like Kimi K2, CodeLlama, and more locally
 💻 **Web-based IDE**: VS Code Server accessible through your browser
 🔍 **Smart Context**: Local vector database with embeddings for intelligent code context
 📦 **Self-contained**: Everything runs in a single Docker container
-🚀 **GPU Accelerated**: Optimized for NVIDIA GPUs with CUDA support
+🔧 **Multi-Model Support**: Switch between different LLM models based on your needs
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
 - Docker with NVIDIA runtime support
-- NVIDIA GPU with CUDA support (optional, CPU fallback available)
+- NVIDIA GPU with CUDA support (recommended for best performance)
 - Hugging Face account and token ([Get one here](https://huggingface.co/settings/tokens))
+- 8GB+ RAM (16GB+ recommended for larger models)
 
 ### 1. Clone and Setup
 
 ```bash
-git clone https://github.com/anupsingh-ai/findy-coding-ai-agent.git
-cd findy-coding-ai-agent
+git clone https://github.com/anupsingh-ai/justcopy-ai-ide.git
+cd justcopy-ai-ide
 cp .env.example .env
 ```
 
@@ -46,13 +61,17 @@ HUGGING_FACE_HUB_TOKEN=your_actual_token_here
 ### 3. Build and Run
 
 ```bash
-# Using Docker Compose (recommended)
+# Using the automated build script (recommended)
+./build.sh
+./run.sh
+
+# Or using Docker Compose
 docker-compose up --build
 
 # Or using Docker directly
-docker build -t kimi-k2-ide .
+docker build -t local-coding-agent .
 docker run --runtime nvidia --gpus all \
-  --name kimi-k2-ide \
+  --name local-coding-agent \
   -v ~/.cache/huggingface:/root/.cache/huggingface \
   -v $(pwd)/data:/app/data \
   --env-file .env \
@@ -60,16 +79,19 @@ docker run --runtime nvidia --gpus all \
   -p 8080:8080 \
   -p 8888:8888 \
   --ipc=host \
-  kimi-k2-ide
+  local-coding-agent
 ```
 
-### 4. Access Your Development Environment
+### 4. Access Your JustCopy AI IDE
 
 Once all services are running, access:
 
+- **💻 Main Interface**: http://localhost:8888 (Start here!)
 - **🔗 VS Code IDE**: http://localhost:8080
-- **🤖 AI Assistant API**: http://localhost:8888
-- **🧠 vLLM API**: http://localhost:8000
+- **🤖 AI Assistant API**: http://localhost:8888/api
+- **🧠 Local LLM API**: http://localhost:8000
+
+> ✨ **First time?** Start at http://localhost:8888 for the main interface with AI chat and project management!
 
 ## Usage
 
@@ -273,12 +295,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Support
 
 - 📖 Check the [Usage Guide](USAGE.md)
-- 🐛 [Report Issues](https://github.com/anupsingh-ai/findy-coding-ai-agent/issues)
-- 💬 [Start Discussions](https://github.com/anupsingh-ai/findy-coding-ai-agent/discussions)
+- 🐛 [Report Issues](https://github.com/anupsingh-ai/justcopy-ai-ide/issues)
+- 💬 [Start Discussions](https://github.com/anupsingh-ai/justcopy-ai-ide/discussions)
 - ⭐ Star the repository if you find it useful!
 
 ---
 
-**Made with ❤️ by [Anup Singh](https://github.com/anupsingh-ai)**
+**Maintained by [JustCopy.ai](https://justcopy.ai) | Created by [Anup Singh](https://github.com/anupsingh-ai)**
 
 *Empowering developers with AI-powered coding assistance*

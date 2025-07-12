@@ -1,9 +1,9 @@
 version: '3.8'
 
 services:
-  kimi-ide:
+  local-coding-agent:
     build: .
-    container_name: kimi-k2-ide
+    container_name: local-coding-agent
     runtime: nvidia
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
