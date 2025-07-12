@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kimi K2 AI IDE</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: 90%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.2em;
+        }
+
+        .services {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .service-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-color: #667eea;
+        }
+
+        .service-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .service-card p {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .status {
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 30px;
+        }
+
+        .status.loading {
+            background: #fff3cd;
+            border-color: #ffc107;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+
+        .features {
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .features h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .feature-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .emoji {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Kimi K2 AI IDE</h1>
+            <p>Your AI-Powered Development Environment</p>
+        </div>
+
+        <div id="status" class="status loading">
+            <div class="loading-spinner"></div>
+            Checking services status...
+        </div>
+
+        <div class="services">
+            <div class="service-card">
+                <div class="emoji">💻</div>
+                <h3>VS Code IDE</h3>
+                <p>Full-featured web-based IDE with syntax highlighting, debugging, and extensions support.</p>
+                <a href="http://localhost:8080" target="_blank" class="btn" id="ide-btn">Open IDE</a>
+            </div>
+
+            <div class="service-card">
+                <div class="emoji">🤖</div>
+                <h3>AI Assistant</h3>
+                <p>Chat with Kimi K2 model for code generation, debugging help, and programming guidance.</p>
+                <button class="btn" onclick="testAI()">Test AI</button>
+            </div>
+
+            <div class="service-card">
+                <div class="emoji">📁</div>
+                <h3>Project Manager</h3>
+                <p>Create and manage your projects with intelligent templates and structure.</p>
+                <button class="btn" onclick="createProject()">Create Project</button>
+            </div>
+        </div>
+
+        <div class="features">
+            <h2>Features</h2>
+            <div class="feature-list">
+                <div class="feature-item">🧠 AI Code Generation</div>
+                <div class="feature-item">🔍 Smart Context Search</div>
+                <div class="feature-item">📊 Vector Database</div>
+                <div class="feature-item">🚀 GPU Accelerated</div>
+                <div class="feature-item">💾 Auto-Save Projects</div>
+                <div class="feature-item">🔧 Multiple Templates</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check service status
+        async function checkStatus() {
+            try {
+                const response = await fetch('/health');
+                const data = await response.json();
+                
+                const statusDiv = document.getElementById('status');
+                if (data.status === 'healthy') {
+                    statusDiv.className = 'status';
+                    statusDiv.innerHTML = '✅ All services are running and healthy!';
+                } else {
+                    statusDiv.className = 'status error';
+                    statusDiv.innerHTML = '❌ Some services are not ready. Please wait...';
+                }
+            } catch (error) {
+                const statusDiv = document.getElementById('status');
+                statusDiv.className = 'status error';
+                statusDiv.innerHTML = '❌ Unable to connect to services. Please check if the container is running.';
+            }
+        }
+
+        // Test AI functionality
+        async function testAI() {
+            const prompt = prompt('Enter a coding question or request:');
+            if (!prompt) return;
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        messages: [
+                            { role: 'user', content: prompt }
+                        ]
+                    })
+                });
+
+                const data = await response.json();
+                const aiResponse = data.choices[0].message.content;
+                
+                // Create a popup window to show the response
+                const popup = window.open('', 'AI Response', 'width=600,height=400,scrollbars=yes');
+                popup.document.write(`
+                    <html>
+                        <head><title>AI Response</title></head>
+                        <body style="font-family: Arial, sans-serif; padding: 20px;">
+                            <h2>AI Response:</h2>
+                            <pre style="background: #f5f5f5; padding: 15px; border-radius: 5px; white-space: pre-wrap;">${aiResponse}</pre>
+                        </body>
+                    </html>
+                `);
+            } catch (error) {
+                alert('Error communicating with AI: ' + error.message);
+            }
+        }
+
+        // Create a new project
+        async function createProject() {
+            const name = prompt('Project name:');
+            if (!name) return;
+
+            const description = prompt('Project description:');
+            if (!description) return;
+
+            const template = prompt('Template (basic/python/javascript/web):', 'basic');
+            if (!template) return;
+
+            try {
+                const response = await fetch('/api/projects/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        description: description,
+                        template: template
+                    })
+                });
+
+                const data = await response.json();
+                alert('Project created successfully! You can now open it in the IDE.');
+            } catch (error) {
+                alert('Error creating project: ' + error.message);
+            }
+        }
+
+        // Check status on page load
+        window.onload = function() {
+            checkStatus();
+            // Check status every 30 seconds
+            setInterval(checkStatus, 30000);
+        };
+    </script>
+</body>
+</html>

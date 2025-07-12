@@ -1,0 +1,33 @@
+# vLLM for serving the Kimi K2 model
+vllm==0.6.3.post1
+torch>=2.1.0
+transformers>=4.36.0
+accelerate>=0.25.0
+
+# Vector database and embeddings
+chromadb==0.5.15
+sentence-transformers==3.2.1
+numpy>=1.24.0
+faiss-cpu==1.8.0
+
+# Web framework and API
+fastapi==0.115.4
+uvicorn[standard]==0.32.0
+websockets==13.1
+pydantic==2.10.2
+
+# File handling and utilities
+aiofiles==24.1.0
+python-multipart==0.0.12
+jinja2==3.1.4
+
+# Development tools
+black==24.10.0
+flake8==7.1.1
+pytest==8.3.3
+
+# Additional utilities
+requests==2.32.3
+python-dotenv==1.0.1
+pyyaml==6.0.2
+gitpython==3.1.43

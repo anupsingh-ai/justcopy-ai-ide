@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  kimi-ide:
+    build: .
+    container_name: kimi-k2-ide
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - CUDA_VISIBLE_DEVICES=all
+      - HUGGING_FACE_HUB_TOKEN=${HUGGING_FACE_HUB_TOKEN}
+    ports:
+      - "8000:8000"  # vLLM API
+      - "8080:8080"  # VS Code Server
+      - "8888:8888"  # Main API
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+      - ./data:/app/data
+      - ./projects:/app/data/projects
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    ipc: host
+    shm_size: 2gb
+    restart: unless-stopped

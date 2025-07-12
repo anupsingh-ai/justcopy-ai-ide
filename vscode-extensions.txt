@@ -1,0 +1,46 @@
+# Essential VS Code Extensions for AI-Powered Development
+# These extensions will be automatically installed in the IDE
+
+# Python Development
+ms-python.python
+ms-python.vscode-pylance
+ms-python.black-formatter
+ms-python.flake8
+ms-python.isort
+
+# JavaScript/TypeScript
+ms-vscode.vscode-typescript-next
+esbenp.prettier-vscode
+bradlc.vscode-tailwindcss
+
+# Web Development
+ms-vscode.vscode-html-css-support
+ms-vscode.vscode-json
+ms-vscode.vscode-yaml
+
+# Git Integration
+eamodio.gitlens
+mhutchie.git-graph
+
+# AI and Code Enhancement
+github.copilot
+github.copilot-chat
+ms-vscode.vscode-ai-toolkit
+
+# General Productivity
+ms-vscode.vscode-todo-highlight
+streetsidesoftware.code-spell-checker
+ms-vscode.vscode-icons
+ms-vscode.theme-monokai-dimmed
+
+# Docker Support
+ms-azuretools.vscode-docker
+
+# REST API Testing
+humao.rest-client
+
+# Markdown Support
+yzhang.markdown-all-in-one
+
+# File Management
+alefragnani.project-manager
