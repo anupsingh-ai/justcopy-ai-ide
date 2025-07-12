@@ -21,9 +21,20 @@ fi
 
 # Check if HUGGING_FACE_HUB_TOKEN is set
 source .env
-if [ -z "$HUGGING_FACE_HUB_TOKEN" ] || [ "$HUGGING_FACE_HUB_TOKEN" = "your_huggingface_token_here" ]; then
+if [ -z "$HUGGING_FACE_HUB_TOKEN" ] || [ "$HUGGING_FACE_HUB_TOKEN" = "your_huggingface_token_here" ] || [ "$HUGGING_FACE_HUB_TOKEN" = "hf_your_actual_token_here" ]; then
     echo -e "${RED}❗ HUGGING_FACE_HUB_TOKEN is not set in .env file${NC}"
-    echo -e "${RED}❗ Please add your Hugging Face token to .env file${NC}"
+    echo -e "${YELLOW}💡 Why do you need this token?${NC}"
+    echo -e "   • Downloads AI models from Hugging Face Hub (Kimi K2, CodeLlama, etc.)"
+    echo -e "   • Without token: Slow downloads + rate limits"
+    echo -e "   • With token: Fast downloads + no limits"
+    echo -e "   • It's completely FREE - just sign up!"
+    echo -e ""
+    echo -e "${GREEN}🚀 Quick setup:${NC}"
+    echo -e "   1. Sign up at https://huggingface.co (free)"
+    echo -e "   2. Go to Settings → Access Tokens"
+    echo -e "   3. Create New Token → Select 'Read' permissions"
+    echo -e "   4. Copy token and add to .env file"
+    echo -e ""
     exit 1
 fi
 
