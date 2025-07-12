@@ -133,14 +133,64 @@ async def check_vllm_health():
     except:
         return False
 
-@app.post("/api/chat")
-async def chat_with_ai(messages: List[ChatMessage]):
-    """Chat with the Kimi K2 model"""
+# Old chat endpoint removed - using agentic chat endpoint instead
+
+class AgenticChatRequest(BaseModel):
+    message: str
+    project_path: str = "/app/data/projects"
+
+class AgenticChatResponse(BaseModel):
+    response: str
+    file_operations: List[Dict[str, Any]] = []
+    files_modified: bool = False
+
+class FolderSelectionRequest(BaseModel):
+    folder_path: str
+    file_count: int = 0
+
+class FolderSelectionResponse(BaseModel):
+    message: str
+    folder_path: str
+    success: bool = True
+
+@app.post("/api/chat", response_model=AgenticChatResponse)
+async def agentic_chat(request: AgenticChatRequest):
+    """Agentic chat interface that can modify files based on user requests"""
     try:
-        # Prepare the request for vLLM
+        # Analyze the user's request to determine intent
+        intent = await analyze_user_intent(request.message)
+        
+        # Get current project structure
+        project_files = await get_project_structure(request.project_path)
+        
+        # Prepare system prompt for agentic behavior
+        system_prompt = f"""You are an AI coding agent that can create, modify, and manage files. 
+        You have access to the following project directory: {request.project_path}
+        
+        Current project structure:
+        {project_files}
+        
+        Based on the user's request, you should:
+        1. Understand what they want to accomplish
+        2. Determine what files need to be created or modified
+        3. Generate the appropriate code
+        4. Provide clear explanations of what you're doing
+        
+        Always be helpful, accurate, and explain your actions clearly.
+        If you need to create or modify files, describe exactly what you're doing.
+        
+        User request: {request.message}
+        
+        Respond with a helpful explanation and indicate any file operations you would perform.
+        """
+        
+        # Call the AI model
         payload = {
-            "model": "kimi-k2",
-            "messages": [{"role": msg.role, "content": msg.content} for msg in messages],
+            "model": "local-model",
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": request.message}
+            ],
             "temperature": 0.7,
             "max_tokens": 2048
         }
@@ -153,13 +203,63 @@ async def chat_with_ai(messages: List[ChatMessage]):
         )
         
         if response.status_code == 200:
-            return response.json()
+            result = response.json()
+            ai_response = result["choices"][0]["message"]["content"]
+            
+            # Parse the AI response to extract file operations
+            file_operations = await extract_file_operations(ai_response, request.message)
+            
+            # Execute file operations if any
+            files_modified = False
+            if file_operations:
+                files_modified = await execute_file_operations(file_operations, request.project_path)
+            
+            return AgenticChatResponse(
+                response=ai_response,
+                file_operations=file_operations,
+                files_modified=files_modified
+            )
         else:
-            raise HTTPException(status_code=500, detail=f"vLLM API error: {response.text}")
+            # Fallback response if AI service is not available
+            return AgenticChatResponse(
+                response="I understand you want to work on your code. However, the AI service is currently unavailable. Please try again later or check the service status.",
+                file_operations=[],
+                files_modified=False
+            )
             
     except Exception as e:
-        logger.error(f"Chat error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Agentic chat error: {e}")
+        return AgenticChatResponse(
+            response=f"I encountered an error while processing your request: {str(e)}. Please try again or rephrase your request.",
+            file_operations=[],
+            files_modified=False
+        )
+
+@app.post("/api/folder/select", response_model=FolderSelectionResponse)
+async def select_folder(request: FolderSelectionRequest):
+    """Handle folder selection from the frontend"""
+    try:
+        logger.info(f"Folder selected: {request.folder_path} with {request.file_count} files")
+        
+        # Validate folder path (basic security check)
+        if not request.folder_path or '..' in request.folder_path:
+            raise HTTPException(status_code=400, detail="Invalid folder path")
+        
+        # Create a friendly response message
+        if request.file_count > 0:
+            message = f"Great! I've selected the folder '{request.folder_path}' with {request.file_count} files. I'm ready to help you work with your code!"
+        else:
+            message = f"Folder '{request.folder_path}' selected. I'm ready to help you create new files and projects in this directory!"
+        
+        return FolderSelectionResponse(
+            message=message,
+            folder_path=request.folder_path,
+            success=True
+        )
+        
+    except Exception as e:
+        logger.error(f"Folder selection error: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to select folder: {str(e)}")
 
 @app.post("/api/code/generate")
 async def generate_code(request: CodeRequest):
@@ -493,6 +593,30 @@ async def list_projects():
         logger.error(f"Project listing error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/api/files/list")
+async def list_files(path: str = "/app/data/projects"):
+    """List files in a directory"""
+    try:
+        directory = Path(path)
+        if not directory.exists():
+            directory.mkdir(parents=True, exist_ok=True)
+            return {"files": []}
+        
+        files = []
+        for item in directory.iterdir():
+            files.append({
+                "name": item.name,
+                "type": "directory" if item.is_dir() else "file",
+                "path": str(item),
+                "size": item.stat().st_size if item.is_file() else 0
+            })
+        
+        return {"files": files}
+        
+    except Exception as e:
+        logger.error(f"File listing error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     """WebSocket endpoint for real-time communication"""
@@ -516,6 +640,170 @@ async def websocket_endpoint(websocket: WebSocket):
         logger.info("WebSocket disconnected")
     except Exception as e:
         logger.error(f"WebSocket error: {e}")
+
+# Helper functions for agentic chat
+async def analyze_user_intent(message: str) -> str:
+    """Analyze user's message to determine their intent"""
+    message_lower = message.lower()
+    
+    if any(word in message_lower for word in ['create', 'make', 'build', 'generate']):
+        return 'create'
+    elif any(word in message_lower for word in ['modify', 'change', 'update', 'edit', 'fix']):
+        return 'modify'
+    elif any(word in message_lower for word in ['delete', 'remove']):
+        return 'delete'
+    elif any(word in message_lower for word in ['show', 'list', 'display']):
+        return 'read'
+    else:
+        return 'general'
+
+async def get_project_structure(project_path: str) -> str:
+    """Get the current project structure as a string"""
+    try:
+        project_dir = Path(project_path)
+        if not project_dir.exists():
+            project_dir.mkdir(parents=True, exist_ok=True)
+            return "Empty project directory (just created)"
+        
+        structure = []
+        for item in project_dir.rglob('*'):
+            if item.is_file():
+                relative_path = item.relative_to(project_dir)
+                structure.append(f"📄 {relative_path}")
+            elif item.is_dir() and item != project_dir:
+                relative_path = item.relative_to(project_dir)
+                structure.append(f"📁 {relative_path}/")
+        
+        if not structure:
+            return "Empty project directory"
+        
+        return "\n".join(structure[:20])  # Limit to first 20 items
+    except Exception as e:
+        logger.error(f"Error getting project structure: {e}")
+        return "Could not read project structure"
+
+async def extract_file_operations(ai_response: str, user_message: str) -> List[Dict[str, Any]]:
+    """Extract file operations from AI response and user message"""
+    operations = []
+    
+    # Simple pattern matching for file operations
+    user_lower = user_message.lower()
+    
+    # Detect file creation requests
+    if any(word in user_lower for word in ['create', 'make', 'build', 'generate']):
+        if 'python' in user_lower:
+            operations.append({
+                "operation": "CREATE",
+                "file_path": "main.py",
+                "description": "Creating Python file based on request"
+            })
+        elif 'react' in user_lower or 'javascript' in user_lower:
+            operations.append({
+                "operation": "CREATE",
+                "file_path": "App.js",
+                "description": "Creating React/JavaScript file based on request"
+            })
+        elif 'html' in user_lower or 'web' in user_lower:
+            operations.append({
+                "operation": "CREATE",
+                "file_path": "index.html",
+                "description": "Creating HTML file based on request"
+            })
+        else:
+            operations.append({
+                "operation": "CREATE",
+                "file_path": "new_file.txt",
+                "description": "Creating file based on request"
+            })
+    
+    return operations
+
+async def execute_file_operations(operations: List[Dict[str, Any]], project_path: str) -> bool:
+    """Execute the file operations"""
+    try:
+        project_dir = Path(project_path)
+        project_dir.mkdir(parents=True, exist_ok=True)
+        
+        for operation in operations:
+            if operation["operation"] == "CREATE":
+                file_path = project_dir / operation["file_path"]
+                file_path.parent.mkdir(parents=True, exist_ok=True)
+                
+                # Generate appropriate content based on file type
+                content = await generate_file_content(operation["file_path"], operation.get("description", ""))
+                
+                async with aiofiles.open(file_path, 'w') as f:
+                    await f.write(content)
+                
+                logger.info(f"Created file: {file_path}")
+        
+        return len(operations) > 0
+    except Exception as e:
+        logger.error(f"Error executing file operations: {e}")
+        return False
+
+async def generate_file_content(file_path: str, description: str) -> str:
+    """Generate appropriate content for a file based on its type"""
+    file_name = Path(file_path).name.lower()
+    
+    if file_name.endswith('.py'):
+        return f'''#!/usr/bin/env python3
+"""
+{description}
+"""
+
+def main():
+    """Main function"""
+    print("Hello from {file_name}!")
+    # TODO: Implement your code here
+    pass
+
+if __name__ == "__main__":
+    main()
+'''
+    elif file_name.endswith('.js') or file_name.endswith('.jsx'):
+        return f'''/**
+ * {description}
+ */
+
+console.log("Hello from {file_name}!");
+
+// TODO: Implement your code here
+'''
+    elif file_name.endswith('.html'):
+        return f'''<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generated HTML</title>
+</head>
+<body>
+    <h1>Generated HTML File</h1>
+    <p>{description}</p>
+    <!-- TODO: Add your content here -->
+</body>
+</html>
+'''
+    elif file_name.endswith('.css'):
+        return f'''/* {description} */
+
+body {{
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f5f5f5;
+}}
+
+/* TODO: Add your styles here */
+'''
+    else:
+        return f'''# {description}
+
+This file was generated by the Local Coding Agent.
+
+TODO: Add your content here
+'''
 
 if __name__ == "__main__":
     uvicorn.run(

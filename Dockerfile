@@ -1,5 +1,5 @@
-# Use NVIDIA CUDA base image for GPU support
-FROM nvidia/cuda:12.1-devel-ubuntu22.04
+# Use Ubuntu base image (CUDA will be installed if available)
+FROM ubuntu:22.04
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive

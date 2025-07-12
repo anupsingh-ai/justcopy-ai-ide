@@ -50,19 +50,12 @@ client = chromadb.PersistentClient(path='/app/data/vector_db')
 print('ChromaDB initialized successfully')
 " &
 
-# Start vLLM server for Kimi K2 model
-echo -e "${GREEN}🤖 Starting vLLM server with Kimi K2 Instruct model...${NC}"
-python3 -m vllm.entrypoints.openai.api_server \
-    --model moonshotai/Kimi-K2-Instruct \
-    --host 0.0.0.0 \
-    --port 8000 \
-    --tensor-parallel-size 1 \
-    --gpu-memory-utilization 0.7 \
-    --max-model-len 4096 \
-    --served-model-name kimi-k2 &
+# Start AI API server with real model inference
+echo -e "${GREEN}🤖 Starting AI API server with real model inference...${NC}"
+cd /app && python3 ai_server.py &
 
-# Wait for vLLM to be ready
-wait_for_service "http://localhost:8000/health" "vLLM API Server"
+# Wait for AI API to be ready
+wait_for_service "http://localhost:8000/health" "AI API Server"
 
 # Start the main application API
 echo -e "${GREEN}🔧 Starting main application API...${NC}"

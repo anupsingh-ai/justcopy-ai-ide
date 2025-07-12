@@ -7,7 +7,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}🚀 Kimi K2 AI IDE Builder${NC}"
+echo -e "${BLUE}🚀 JustCopy AI IDE Builder${NC}"
 echo -e "${BLUE}=========================${NC}"
 
 # Check if .env file exists
